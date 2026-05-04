@@ -15,8 +15,14 @@ const PodcastPage = () => {
     axios.get('/api/podcasts').then(r => setPodcasts(r.data)).catch(() => setPodcasts([])).finally(() => setLoading(false));
   }, []);
 
-  const categories = ['الكل', ...new Set(podcasts.map(p => p.category).filter(Boolean))];
-  const filtered = podcasts.filter(p =>
+  const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+  const podcastsWithUrls = podcasts.map(p => ({
+    ...p,
+    imageUrl: p.imageUrl ? (p.imageUrl.startsWith('http') ? p.imageUrl : `${API_BASE}${p.imageUrl}`) : p.imageUrl
+  }));
+
+  const categories = ['الكل', ...new Set(podcastsWithUrls.map(p => p.category).filter(Boolean))];
+  const filtered = podcastsWithUrls.filter(p =>
     (activeCategory === 'الكل' || p.category === activeCategory) &&
     (!search || p.title?.includes(search) || p.speaker?.includes(search))
   );

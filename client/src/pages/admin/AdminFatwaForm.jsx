@@ -6,6 +6,7 @@ const AdminFatwaForm = () => {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [category, setCategory] = useState('');
+  const [position, setPosition] = useState(0);
   const [loading, setLoading] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
@@ -17,9 +18,10 @@ const AdminFatwaForm = () => {
           const res = await axios.get('/api/fatwaArchive?admin=true');
           const item = res.data.find(i => i._id === id);
           if (item) {
-        setQuestion(item.question || '');
-        setAnswer(item.answer || '');
-        setCategory(item.category || '');
+            setQuestion(item.question || '');
+            setAnswer(item.answer || '');
+            setCategory(item.category || '');
+            setPosition(item.position || 0);
           }
         } catch (error) {
           console.error('Error fetching item', error);
@@ -33,7 +35,7 @@ const AdminFatwaForm = () => {
     e.preventDefault();
     setLoading(true);
     const token = localStorage.getItem('adminToken');
-    const data = { question, answer, category };
+    const data = { question, answer, category, position: parseInt(position) || 0 };
 
     try {
       if (id) {
@@ -68,6 +70,10 @@ const AdminFatwaForm = () => {
         <div className="form-group">
           <label className="form-label">تصنيف الفتوى</label>
           <input type="text" className="form-control" value={category} onChange={e => setCategory(e.target.value)} required />
+        </div>
+        <div className="form-group">
+          <label className="form-label">الترتيب / الأولوية (الأرقام الأعلى تظهر أولاً)</label>
+          <input type="number" className="form-control" value={position} onChange={e => setPosition(e.target.value)} />
         </div>
           <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
             <button type="submit" className="btn btn-primary" disabled={loading}>

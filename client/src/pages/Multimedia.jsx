@@ -11,7 +11,12 @@ const Multimedia = () => {
     const fetchMedia = async () => {
       try {
         const res = await axios.get('/api/media');
-        setMedia(res.data);
+        const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+        const data = res.data.map(item => ({
+          ...item,
+          url: item.url && !item.url.startsWith('http') ? `${API_BASE}${item.url}` : item.url
+        }));
+        setMedia(data);
       } catch (err) {
         console.error('Error fetching media:', err);
       } finally {

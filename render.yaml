@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: my-islami-site
+    runtime: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          name: redis-cache
+          type: redis
+          property: connectionString
+
+  - type: redis
+    name: redis-cache
+    plan: free
+    ipAllowList: [] # Only allow internal connections

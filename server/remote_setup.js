@@ -6,7 +6,7 @@ const data = JSON.stringify({
 });
 
 const options = {
-  hostname: 'my-islami-site-production.up.railway.app',
+  hostname: 'my-islami-site.onrender.com',
   port: 443,
   path: '/api/auth/setup',
   method: 'POST',

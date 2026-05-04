@@ -10,8 +10,13 @@ const TibbDetailPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
     axios.get(`/api/tibb/${id}`)
-      .then(r => setItem(r.data))
+      .then(r => {
+        let d = r.data;
+        if (d.imageUrl && !d.imageUrl.startsWith('http')) d.imageUrl = `${API_BASE}${d.imageUrl}`;
+        setItem(d);
+      })
       .catch(() => setItem(null))
       .finally(() => setLoading(false));
   }, [id]);

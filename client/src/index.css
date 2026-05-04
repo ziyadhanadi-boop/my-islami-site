@@ -484,3 +484,40 @@ tr:hover td {
   -ms-overflow-style: none;
 }
 
+/* ---------------------------------- */
+/* Global Responsiveness Fixes        */
+/* ---------------------------------- */
+html, body {
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  /* Prevent any unintentional horizontal scroll */
+  .app-container {
+    overflow-x: hidden;
+  }
+
+  /* Adjust floating widgets to clear MobileBottomNav */
+  .chat-widget-btn, [class*="ChatWidget"] button {
+    bottom: 85px !important; 
+  }
+  
+  [class*="BackToTop"] button {
+    bottom: 85px !important;
+  }
+
+  /* Ensure cards and sections take full width on small screens */
+  .container {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  /* Image scaling */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+

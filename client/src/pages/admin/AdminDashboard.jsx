@@ -528,6 +528,7 @@ const AdminDashboard = () => {
               {activeTab === 'messages' && <th style={{ padding: '1.25rem 1rem', color: 'var(--text-secondary)', fontWeight: '600' }}>بيانات السائل</th>}
               <th style={{ padding: '1.25rem 1rem', color: 'var(--text-secondary)', fontWeight: '600' }}>التصنيف</th>
               {activeTab === 'articles' && <th style={{ padding: '1.25rem 1rem', color: 'var(--text-secondary)', fontWeight: '600', textAlign: 'center' }}>الاحصائيات</th>}
+              {activeTab === 'fatwaArchive' && <th style={{ padding: '1.25rem 1rem', color: 'var(--text-secondary)', fontWeight: '600' }}>الترتيب</th>}
               <th style={{ padding: '1.25rem 1rem', color: 'var(--text-secondary)', fontWeight: '600' }}>الحالة</th>
               <th style={{ padding: '1.25rem 1rem', color: 'var(--text-secondary)', fontWeight: '600', textAlign: 'center' }}>إجراءات</th>
             </tr>
@@ -569,6 +570,11 @@ const AdminDashboard = () => {
                 {activeTab === 'articles' && (
                   <td style={{ padding: '1.25rem 1rem', textAlign: 'center' }}>
                     <div style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>👁️ {(item.views || 0)}</div>
+                  </td>
+                )}
+                {activeTab === 'fatwaArchive' && (
+                  <td style={{ padding: '1.25rem 1rem' }}>
+                    <div style={{ fontWeight: 'bold', color: 'var(--primary-color)' }}>{item.position || 0}</div>
                   </td>
                 )}
                 <td style={{ padding: '1.25rem 1rem' }}>

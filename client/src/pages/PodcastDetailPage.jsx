@@ -12,8 +12,14 @@ const PodcastDetailPage = () => {
   const { playTrack, currentTrack, isPlaying } = useContext(AudioContext);
 
   useEffect(() => {
+    const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
     axios.get(`/api/podcasts/${id}`)
-      .then(r => setPodcast(r.data))
+      .then(r => {
+        const pod = r.data;
+        if (pod.imageUrl && !pod.imageUrl.startsWith('http')) pod.imageUrl = `${API_BASE}${pod.imageUrl}`;
+        if (pod.audioUrl && !pod.audioUrl.startsWith('http')) pod.audioUrl = `${API_BASE}${pod.audioUrl}`;
+        setPodcast(pod);
+      })
       .catch(() => setPodcast(null))
       .finally(() => setLoading(false));
   }, [id]);

@@ -6,7 +6,7 @@ const auth = require('../middleware/auth');
 router.get('/', async (req, res) => {
   try {
     const filter = req.query.admin === 'true' ? {} : { isHidden: { $ne: true } };
-    const items = await FatwaArchive.find(filter).sort({ createdAt: -1 });
+    const items = await FatwaArchive.find(filter).sort({ position: -1, createdAt: -1 });
     res.json(items);
   } catch (error) {
     res.status(500).json({ message: error.message });

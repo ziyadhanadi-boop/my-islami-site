@@ -115,7 +115,7 @@ const NamesOfAllah = () => {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
         {names.map((item, index) => (
-          <div key={index} className="card" style={{ 
+          <div key={index} className="card hover:shadow-lg" style={{ 
             padding: '2.5rem 1.5rem', 
             textAlign: 'center', 
             position: 'relative', 
@@ -124,7 +124,7 @@ const NamesOfAllah = () => {
             border: '1px solid var(--border-color)',
             borderRadius: '1.25rem',
             transition: 'all 0.3s'
-          }} className="hover:shadow-lg">
+          }}>
             <div style={{ position: 'absolute', top: '-10px', left: '-10px', fontSize: '5rem', color: 'var(--primary-color)', opacity: 0.05 }}>{index + 1}</div>
             <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--primary-color)', marginBottom: '1rem', fontFamily: 'var(--font-heading)' }}>{item.name}</div>
             <div style={{ fontSize: '1rem', color: 'var(--text-secondary)', lineHeight: '1.8' }}>{item.mean}</div>

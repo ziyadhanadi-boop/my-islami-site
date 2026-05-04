@@ -41,8 +41,13 @@ const ProphetStoryDetailPage = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
     axios.get(`/api/prophet-stories/${id}`)
-      .then(r => setStory(r.data))
+      .then(r => {
+        let d = r.data;
+        if (d.imageUrl && !d.imageUrl.startsWith('http')) d.imageUrl = `${API_BASE}${d.imageUrl}`;
+        setStory(d);
+      })
       .catch(() => setError('تعذّر تحميل القصة'))
       .finally(() => setLoading(false));
   }, [id]);

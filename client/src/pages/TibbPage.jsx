@@ -18,8 +18,14 @@ const TibbPage = () => {
     axios.get('/api/tibb').then(r => setItems(r.data)).catch(() => setItems([])).finally(() => setLoading(false));
   }, []);
 
-  const categories = ['الكل', ...new Set(items.map(i => i.category).filter(Boolean))];
-  const filtered = items.filter(item => {
+  const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+  const itemsWithUrls = items.map(i => ({
+    ...i,
+    imageUrl: i.imageUrl ? (i.imageUrl.startsWith('http') ? i.imageUrl : `${API_BASE}${i.imageUrl}`) : i.imageUrl
+  }));
+
+  const categories = ['الكل', ...new Set(itemsWithUrls.map(i => i.category).filter(Boolean))];
+  const filtered = itemsWithUrls.filter(item => {
     const matchCat = activeCategory === 'الكل' || item.category === activeCategory;
     const matchSearch = !search || item.name?.includes(search);
     return matchCat && matchSearch;

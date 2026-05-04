@@ -136,10 +136,15 @@ function App() {
 
     const trackVisit = async () => {
       try {
-        // Get user country via free IP geolocation API
-        const geoRes = await fetch('https://ipapi.co/json/');
-        const geo = await geoRes.json();
-        await fetch('/api/analytics/track', {
+        const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+        let geo = { country_name: 'غير معروف', country_code: 'xx' };
+        
+        try {
+          const geoRes = await fetch('https://ipapi.co/json/');
+          if (geoRes.ok) geo = await geoRes.json();
+        } catch (e) { console.warn('Geo tracking blocked or failed'); }
+
+        await fetch(`${API_BASE}/api/analytics/track`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

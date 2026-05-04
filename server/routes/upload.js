@@ -12,7 +12,8 @@ const ensureDir = (dir) => { if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recurs
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const isAudio = file.mimetype.startsWith('audio/');
-    const dir = isAudio ? 'uploads/audio/' : 'uploads/images/';
+    const subDir = isAudio ? 'audio' : 'images';
+    const dir = path.join(__dirname, '../uploads', subDir);
     ensureDir(dir);
     cb(null, dir);
   },

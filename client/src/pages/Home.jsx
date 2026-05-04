@@ -9,6 +9,7 @@ import { AudioContext } from '../context/AudioContext';
 import LiveKhatmahWidget from '../components/LiveKhatmahWidget';
 import DeenPlannerWidget from '../components/DeenPlannerWidget';
 import Azkar from '../components/Azkar';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 
 const Home = () => {
   const [articles, setArticles] = useState([]);
@@ -24,28 +25,37 @@ const Home = () => {
   const sectionRefs = React.useRef({}); // Map of category-name -> DOM el
   const carouselRef = React.useRef(null); // for مقالات متنوعة section
 
-  // Helper: arrow button style
+  // Helper: arrow button style - Professional Glassmorphism Design
   const arrowBtn = (side) => ({
-    position: 'absolute', top: '50%',
-    [side]: '-18px',
+    position: 'absolute', top: '50.1%',
+    [side]: '-22px',
     transform: 'translateY(-50%)',
     zIndex: 10,
-    width: '44px', height: '44px', borderRadius: '50%',
-    border: 'none',
-    background: 'var(--primary-color)',
+    width: '46px', height: '46px', borderRadius: '50%',
+    border: '1px solid rgba(255,255,255,0.2)',
+    background: 'rgba(13, 148, 136, 0.95)', // var(--primary-color) with opacity
+    backdropFilter: 'blur(10px)',
     color: 'white',
-    fontSize: '1.2rem', cursor: 'pointer',
+    fontSize: '1.4rem', cursor: 'pointer',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    boxShadow: '0 4px 14px rgba(0,0,0,0.22)',
-    transition: 'all 0.2s',
+    boxShadow: '0 8px 16px rgba(0,0,0,0.15), 0 3px 6px rgba(0,0,0,0.1)',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     flexShrink: 0,
   });
 
-  const onArrowHoverIn  = e => { e.currentTarget.style.background = 'var(--primary-dark)'; e.currentTarget.style.transform = 'translateY(-50%) scale(1.12)'; };
-  const onArrowHoverOut = e => { e.currentTarget.style.background = 'var(--primary-color)'; e.currentTarget.style.transform = 'translateY(-50%) scale(1)'; };
+  const onArrowHoverIn = e => { 
+    e.currentTarget.style.background = 'var(--primary-dark)'; 
+    e.currentTarget.style.transform = 'translateY(-50%) scale(1.15)';
+    e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.25)';
+  };
+  const onArrowHoverOut = e => { 
+    e.currentTarget.style.background = 'rgba(13, 148, 136, 0.95)'; 
+    e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+    e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.15), 0 3px 6px rgba(0,0,0,0.1)';
+  };
 
   // trackStyle for every carousel
-  const CARD_W = '220px';
+  const CARD_W = 'min(220px, 80vw)';
   const trackStyle = {
     display: 'flex', gap: '1rem',
     overflowX: 'auto', scrollSnapType: 'x mandatory',
@@ -82,7 +92,7 @@ const Home = () => {
         console.error('Error fetching fatwas:', error);
       }
     };
-    
+
     const fetchRandomHadith = async () => {
       try {
         const res = await axios.get('/api/hadith/random');
@@ -138,8 +148,8 @@ const Home = () => {
     const categoryArticles = articles.filter(a => a.category === categoryName);
     if (categoryArticles.length === 0) return null;
 
-    const scrollLeft  = () => sectionRefs.current[categoryName]?.scrollBy({ left: -240, behavior: 'smooth' });
-    const scrollRight = () => sectionRefs.current[categoryName]?.scrollBy({ left:  240, behavior: 'smooth' });
+    const scrollLeft = () => sectionRefs.current[categoryName]?.scrollBy({ left: -240, behavior: 'smooth' });
+    const scrollRight = () => sectionRefs.current[categoryName]?.scrollBy({ left: 240, behavior: 'smooth' });
 
     return (
       <div key={categoryName} style={{ marginBottom: '0' }}>
@@ -153,8 +163,28 @@ const Home = () => {
 
         {/* Carousel */}
         <div style={{ position: 'relative' }}>
-          <button style={arrowBtn('right')} onMouseEnter={onArrowHoverIn} onMouseLeave={onArrowHoverOut} onClick={scrollLeft}>←</button>
-          <button style={arrowBtn('left')}  onMouseEnter={onArrowHoverIn} onMouseLeave={onArrowHoverOut} onClick={scrollRight}>→</button>
+          {/* RTL: Next is on the Left (end of stream), Prev is on the Right (start of stream) */}
+          <button 
+            className="carousel-arrow" 
+            style={arrowBtn('right')} 
+            onMouseEnter={onArrowHoverIn} 
+            onMouseLeave={onArrowHoverOut} 
+            onClick={scrollRight}
+            aria-label="السابق"
+          >
+            <ChevronRight size={24} strokeWidth={2.5} />
+          </button>
+          
+          <button 
+            className="carousel-arrow" 
+            style={arrowBtn('left')} 
+            onMouseEnter={onArrowHoverIn} 
+            onMouseLeave={onArrowHoverOut} 
+            onClick={scrollLeft}
+            aria-label="التالي"
+          >
+            <ChevronLeft size={24} strokeWidth={2.5} />
+          </button>
 
           <div style={{ overflow: 'hidden' }}>
             <div
@@ -163,8 +193,8 @@ const Home = () => {
               style={trackStyle}
               onMouseDown={e => { const el = sectionRefs.current[categoryName]; if (!el) return; el.isDragging = true; el.startX = e.pageX - el.offsetLeft; el.scrollLeftStart = el.scrollLeft; el.style.cursor = 'grabbing'; }}
               onMouseMove={e => { const el = sectionRefs.current[categoryName]; if (!el || !el.isDragging) return; e.preventDefault(); el.scrollLeft = el.scrollLeftStart - (e.pageX - el.offsetLeft - el.startX); }}
-              onMouseUp={e => { const el = sectionRefs.current[categoryName]; if (el) { el.isDragging = false; el.style.cursor = 'grab'; }}}
-              onMouseLeave={e => { const el = sectionRefs.current[categoryName]; if (el) { el.isDragging = false; el.style.cursor = 'grab'; }}}
+              onMouseUp={e => { const el = sectionRefs.current[categoryName]; if (el) { el.isDragging = false; el.style.cursor = 'grab'; } }}
+              onMouseLeave={e => { const el = sectionRefs.current[categoryName]; if (el) { el.isDragging = false; el.style.cursor = 'grab'; } }}
             >
               {categoryArticles.map((article) => (
                 <div key={article._id} style={{ minWidth: CARD_W, maxWidth: CARD_W, scrollSnapAlign: 'start', flexShrink: 0 }}>
@@ -180,9 +210,9 @@ const Home = () => {
 
   return (
     <div className="container" style={{ padding: '1.5rem 1rem' }}>
-      
+
       {/* Grand Hero Section */}
-      <div className="fade-up hero-responsive" style={{ 
+      <div className="fade-up hero-responsive" style={{
         position: 'relative',
         borderRadius: '2rem',
         marginBottom: '2rem',
@@ -215,7 +245,7 @@ const Home = () => {
           filter: 'brightness(0.28) contrast(1.1)', /* Much darker for contrast */
           zIndex: 1
         }}></div>
-        
+
         {/* Geometric Overlay */}
         <div style={{
           position: 'absolute',
@@ -225,61 +255,58 @@ const Home = () => {
         }}></div>
 
         <div className="hero-content" style={{ position: 'relative', zIndex: 10, padding: '2.5rem 2rem', textAlign: 'center', maxWidth: '850px' }}>
-          <div style={{ 
-            display: 'inline-flex', 
-            alignItems: 'center', 
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
             gap: '0.6rem',
-            backgroundColor: 'rgba(0,0,0,0.35)', 
-            padding: '0.5rem 1.5rem', 
-            borderRadius: '3rem', 
-            marginBottom: '1.5rem', 
-            fontSize: '0.9rem', 
-            fontWeight: '600', 
+            backgroundColor: 'rgba(0,0,0,0.35)',
+            padding: '0.5rem 1.5rem',
+            borderRadius: '3rem',
+            marginBottom: '1.5rem',
+            fontSize: '0.9rem',
+            fontWeight: '600',
             backdropFilter: 'blur(15px)',
             border: '1px solid rgba(255,255,255,0.1)',
             color: 'white'
           }}>
             <span style={{ fontSize: '1.1rem' }}>✨</span> {greeting}
           </div>
-          
+
           <h1 className="hero-title" style={{ fontSize: 'clamp(2rem, 7vw, 3.2rem)', fontWeight: '800', marginBottom: '1.25rem', fontFamily: 'var(--font-heading)', color: 'white', textShadow: '0 4px 20px rgba(0,0,0,0.8)', lineHeight: '1.2', letterSpacing: '-0.02em' }}>
-            نورٌ ومعرفة.. <br/>في رحاب الشريعة
+            نورٌ ومعرفة.. <br />في رحاب الشريعة
           </h1>
           <p className="hero-p" style={{ fontSize: 'clamp(1rem, 3vw, 1.2rem)', opacity: 0.9, maxWidth: '650px', margin: '0 auto 2rem', lineHeight: '1.7', color: 'rgba(255,255,255,0.9)', fontWeight: '500' }}>
             دليلك الشامل للمقالات الإسلامية الموثوقة، أوقات الصلاة، وأذكار اليوم الموثقة.
           </p>
-        
+
           <div className="hero-btns" style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
-             <Link to="/zikr" className="btn btn-primary hero-btn-main" style={{ padding: '1rem 3rem', borderRadius: '3rem', fontSize: '1.15rem', fontWeight: 'bold', boxShadow: '0 10px 25px rgba(0,0,0,0.4)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '1.4rem' }}>📿</span> اذكر الله يذكرك
-             </Link>
-             <div style={{ background: 'rgba(0,0,0,0.4)', padding: '0.85rem 2rem', borderRadius: '3rem', backdropFilter: 'blur(15px)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', fontWeight: 'bold', fontSize: '1.1rem' }}>
-                <HijriDate variant="hero" />
-             </div>
+            <Link to="/zikr" className="btn btn-primary hero-btn-main" style={{ padding: '1rem 3rem', borderRadius: '3rem', fontSize: '1.15rem', fontWeight: 'bold', boxShadow: '0 10px 25px rgba(0,0,0,0.4)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '1.4rem' }}>📿</span> اذكر الله يذكرك
+            </Link>
+            <div style={{ background: 'rgba(0,0,0,0.4)', padding: '0.85rem 2rem', borderRadius: '3rem', backdropFilter: 'blur(15px)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', fontWeight: 'bold', fontSize: '1.1rem' }}>
+              <HijriDate variant="hero" />
+            </div>
           </div>
         </div>
       </div>
-      
-      {/* 📿 Separate Azkar Sections */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>
-        <Azkar title="أذكار الصباح" category="اذكار الصباح" />
-        <Azkar title="أذكار المساء" category="اذكار المساء" />
-      </div>
 
-      <div className="main-grid-responsive" style={{ 
-        display: 'grid', 
-        gridTemplateColumns: '1fr 300px', 
-        gap: '1.5rem', 
+      {/* 📿 Separate Azkar Sections Removed */}
+
+
+      <style>{`
+        @media (max-width: 1024px) {
+          .main-grid-responsive { grid-template-columns: 1fr !important; gap: 2rem !important; }
+          .sidebar-stack { order: 2; border-top: 1px solid var(--border-color); padding-top: 2rem; }
+          .articles-section { order: 1; }
+        }
+      `}</style>
+      <div className="main-grid-responsive" style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 300px',
+        gap: '1.5rem',
         alignItems: 'start',
         minWidth: 0
       }}>
-        <style>{`
-          @media (max-width: 1024px) {
-            .main-grid-responsive { grid-template-columns: 1fr !important; gap: 2rem !important; }
-            .sidebar-stack { order: 2; border-top: 1px solid var(--border-color); padding-top: 2rem; }
-            .articles-section { order: 1; }
-          }
-        `}</style>
         <div className="articles-section" style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem', minWidth: 0 }}>
           {/* Targeted Category Rows */}
           {renderCategorySection('قسم السيرة والتاريخ', '📜', 'السيرة والتاريخ')}
@@ -301,10 +328,14 @@ const Home = () => {
 
               {/* Carousel */}
               <div style={{ position: 'relative' }}>
-                <button style={arrowBtn('right')} onMouseEnter={onArrowHoverIn} onMouseLeave={onArrowHoverOut}
-                  onClick={() => carouselRef.current?.scrollBy({ left: -240, behavior: 'smooth' })}>←</button>
-                <button style={arrowBtn('left')} onMouseEnter={onArrowHoverIn} onMouseLeave={onArrowHoverOut}
-                  onClick={() => carouselRef.current?.scrollBy({ left: 240, behavior: 'smooth' })}>→</button>
+                <button className="carousel-arrow" style={arrowBtn('right')} onMouseEnter={onArrowHoverIn} onMouseLeave={onArrowHoverOut}
+                  onClick={() => carouselRef.current?.scrollBy({ left: 240, behavior: 'smooth' })}>
+                  <ChevronRight size={24} strokeWidth={2.5} />
+                </button>
+                <button className="carousel-arrow" style={arrowBtn('left')} onMouseEnter={onArrowHoverIn} onMouseLeave={onArrowHoverOut}
+                  onClick={() => carouselRef.current?.scrollBy({ left: -240, behavior: 'smooth' })}>
+                  <ChevronLeft size={24} strokeWidth={2.5} />
+                </button>
 
                 <div style={{ overflow: 'hidden' }}>
                   <div
@@ -313,8 +344,8 @@ const Home = () => {
                     style={trackStyle}
                     onMouseDown={e => { const el = carouselRef.current; if (!el) return; el.isDragging = true; el.startX = e.pageX - el.offsetLeft; el.scrollLeftStart = el.scrollLeft; el.style.cursor = 'grabbing'; }}
                     onMouseMove={e => { const el = carouselRef.current; if (!el || !el.isDragging) return; e.preventDefault(); el.scrollLeft = el.scrollLeftStart - (e.pageX - el.offsetLeft - el.startX); }}
-                    onMouseUp={() => { const el = carouselRef.current; if (el) { el.isDragging = false; el.style.cursor = 'grab'; }}}
-                    onMouseLeave={() => { const el = carouselRef.current; if (el) { el.isDragging = false; el.style.cursor = 'grab'; }}}
+                    onMouseUp={() => { const el = carouselRef.current; if (el) { el.isDragging = false; el.style.cursor = 'grab'; } }}
+                    onMouseLeave={() => { const el = carouselRef.current; if (el) { el.isDragging = false; el.style.cursor = 'grab'; } }}
                   >
                     {articles
                       .filter(a => !['السيرة والتاريخ', 'فقه الصلاة', 'علوم القرآن', 'العقيدة والتوحيد', 'نماء وتزكية'].includes(a.category))
@@ -337,7 +368,7 @@ const Home = () => {
                 {articlesError ? articlesError : 'لا توجد مقالات حالياً.'}
               </p>
               {articlesError && (
-                 <button onClick={() => window.location.reload()} className="btn btn-primary" style={{marginTop: '1rem'}}>إعادة المحاولة 🔄</button>
+                <button onClick={() => window.location.reload()} className="btn btn-primary" style={{ marginTop: '1rem' }}>إعادة المحاولة 🔄</button>
               )}
             </div>
           )}
@@ -350,7 +381,7 @@ const Home = () => {
               <h2 style={{ margin: 0, fontFamily: 'var(--font-heading)', fontSize: '1.4rem', color: 'var(--primary-color)' }}>أقسام متميزة</h2>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
+            <div className="sections-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
 
               {/* 🤲 الأدعية */}
               <Link to="/duas" style={{ textDecoration: 'none' }}>
@@ -363,8 +394,8 @@ const Home = () => {
                   display: 'flex', flexDirection: 'column', gap: '0.75rem',
                   position: 'relative', minHeight: '160px'
                 }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(13,118,110,0.4)'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(13,118,110,0.25)'; }}>
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(13,118,110,0.4)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(13,118,110,0.25)'; }}>
                   <div style={{ fontSize: '2.5rem', lineHeight: 1 }}>🤲</div>
                   <div>
                     <h3 style={{ margin: '0 0 0.35rem', color: 'white', fontFamily: 'var(--font-heading)', fontSize: '1.2rem' }}>مكتبة الأدعية</h3>
@@ -389,8 +420,8 @@ const Home = () => {
                   display: 'flex', flexDirection: 'column', gap: '0.75rem',
                   position: 'relative', minHeight: '160px'
                 }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(109,40,217,0.4)'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(109,40,217,0.25)'; }}>
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(109,40,217,0.4)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(109,40,217,0.25)'; }}>
                   <div style={{ fontSize: '2.5rem', lineHeight: 1 }}>📜</div>
                   <div>
                     <h3 style={{ margin: '0 0 0.35rem', color: 'white', fontFamily: 'var(--font-heading)', fontSize: '1.2rem' }}>قصص الأنبياء</h3>
@@ -414,8 +445,8 @@ const Home = () => {
                   display: 'flex', flexDirection: 'column', gap: '0.75rem',
                   position: 'relative', minHeight: '160px'
                 }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(21,128,61,0.4)'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(21,128,61,0.25)'; }}>
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(21,128,61,0.4)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(21,128,61,0.25)'; }}>
                   <div style={{ fontSize: '2.5rem', lineHeight: 1 }}>🌿</div>
                   <div>
                     <h3 style={{ margin: '0 0 0.35rem', color: 'white', fontFamily: 'var(--font-heading)', fontSize: '1.2rem' }}>الطب النبوي</h3>
@@ -439,8 +470,8 @@ const Home = () => {
                   display: 'flex', flexDirection: 'column', gap: '0.75rem',
                   position: 'relative', minHeight: '160px'
                 }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(55,48,163,0.4)'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(55,48,163,0.25)'; }}>
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(55,48,163,0.4)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(55,48,163,0.25)'; }}>
                   <div style={{ fontSize: '2.5rem', lineHeight: 1 }}>🎙️</div>
                   <div>
                     <h3 style={{ margin: '0 0 0.35rem', color: 'white', fontFamily: 'var(--font-heading)', fontSize: '1.2rem' }}>البودكاست الإسلامي</h3>
@@ -454,7 +485,7 @@ const Home = () => {
               </Link>
 
               {/* ⚖️ حلال أم حرام — Full Width */}
-              <Link to="/halal-check" style={{ textDecoration: 'none', gridColumn: 'span 2' }}>
+              <Link to="/halal-check" className="section-card-full" style={{ textDecoration: 'none', gridColumn: 'span 2' }}>
                 <div style={{
                   borderRadius: '1.25rem', overflow: 'hidden',
                   background: 'linear-gradient(135deg, #0c4a6e 0%, #082f49 100%)',
@@ -464,8 +495,8 @@ const Home = () => {
                   display: 'flex', alignItems: 'center', gap: '1.5rem',
                   position: 'relative',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(12,74,110,0.4)'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(12,74,110,0.25)'; }}>
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(12,74,110,0.4)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 18px rgba(12,74,110,0.25)'; }}>
                   <div style={{ fontSize: '3rem', lineHeight: 1, flexShrink: 0 }}>⚖️</div>
                   <div style={{ flex: 1 }}>
                     <h3 style={{ margin: '0 0 0.35rem', color: 'white', fontFamily: 'var(--font-heading)', fontSize: '1.3rem' }}>حلال أم حرام؟</h3>
@@ -488,52 +519,52 @@ const Home = () => {
         <aside className="sidebar-stack" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           {/* Featured Articles Sidebar Widget */}
           <div className="card fade-up" style={{ padding: '1.5rem', background: 'var(--surface-color)', borderRight: '5px solid var(--accent-color)' }}>
-              <h4 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', fontFamily: 'var(--font-heading)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ fontSize: '1.25rem' }}>✨</span> مقالات مميزة
-              </h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                {featured
-                  .sort((a,b) => {
-                    if (a.featuredPosition > 0 && b.featuredPosition > 0) return a.featuredPosition - b.featuredPosition;
-                    if (a.featuredPosition > 0) return -1;
-                    if (b.featuredPosition > 0) return 1;
-                    return new Date(b.createdAt) - new Date(a.createdAt);
-                  })
-                  .slice(0, 5)
-                  .map((art) => (
-                    <Link key={art._id} to={`/article/${art.slug || art._id}`} style={{ display: 'flex', gap: '0.75rem', textDecoration: 'none', transition: 'all 0.2s' }} className="sidebar-featured-item">
-                       <div style={{ flexShrink: 0, width: '60px', height: '60px', borderRadius: '0.5rem', overflow: 'hidden' }}>
-                          <img src={art.imageUrl || 'https://images.unsplash.com/photo-1542810634-71277d95dcbb?w=200'} alt={art.title} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                       </div>
-                       <div style={{ flexGrow: 1 }}>
-                          <h5 style={{ margin: '0 0 4px 0', fontSize: '0.875rem', lineHeight: '1.4', color: 'var(--text-primary)', fontWeight: 'bold', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{art.title}</h5>
-                          <span style={{ fontSize: '0.75rem', color: 'var(--primary-color)', fontWeight: 'bold' }}>{art.category}</span>
-                       </div>
-                    </Link>
-                  ))}
-              </div>
-              <Link to="/search" style={{ display: 'block', marginTop: '1.5rem', textAlign: 'center', fontSize: '0.85rem', color: 'var(--primary-color)', fontWeight: 'bold', textDecoration: 'none', border: '1px solid var(--border-color)', padding: '0.6rem', borderRadius: '0.5rem' }} className="more-btn-hover">
-                شاهد المزيد من المميز ←
-              </Link>
+            <h4 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', fontFamily: 'var(--font-heading)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontSize: '1.25rem' }}>✨</span> مقالات مميزة
+            </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              {featured
+                .sort((a, b) => {
+                  if (a.featuredPosition > 0 && b.featuredPosition > 0) return a.featuredPosition - b.featuredPosition;
+                  if (a.featuredPosition > 0) return -1;
+                  if (b.featuredPosition > 0) return 1;
+                  return new Date(b.createdAt) - new Date(a.createdAt);
+                })
+                .slice(0, 5)
+                .map((art) => (
+                  <Link key={art._id} to={`/article/${art.slug || art._id}`} style={{ display: 'flex', gap: '0.75rem', textDecoration: 'none', transition: 'all 0.2s' }} className="sidebar-featured-item">
+                    <div style={{ flexShrink: 0, width: '60px', height: '60px', borderRadius: '0.5rem', overflow: 'hidden' }}>
+                      <img src={art.imageUrl || 'https://images.unsplash.com/photo-1542810634-71277d95dcbb?w=200'} alt={art.title} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                    <div style={{ flexGrow: 1 }}>
+                      <h5 style={{ margin: '0 0 4px 0', fontSize: '0.875rem', lineHeight: '1.4', color: 'var(--text-primary)', fontWeight: 'bold', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{art.title}</h5>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--primary-color)', fontWeight: 'bold' }}>{art.category}</span>
+                    </div>
+                  </Link>
+                ))}
+            </div>
+            <Link to="/search" style={{ display: 'block', marginTop: '1.5rem', textAlign: 'center', fontSize: '0.85rem', color: 'var(--primary-color)', fontWeight: 'bold', textDecoration: 'none', border: '1px solid var(--border-color)', padding: '0.6rem', borderRadius: '0.5rem' }} className="more-btn-hover">
+              شاهد المزيد من المميز ←
+            </Link>
           </div>
 
           {/* Fatwa Archive Widget */}
           {fatwas.length > 0 && (
             <div className="card fade-up" style={{ padding: '1.5rem', background: 'var(--surface-color)', borderRight: '5px solid #8b5cf6' }}>
-                <h4 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', fontFamily: 'var(--font-heading)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '1.25rem' }}>⚖️</span> أرشيف الفتاوى
-                </h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {fatwas.map((fatwa) => (
-                    <div key={fatwa._id} style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
-                      <p style={{ margin: '0 0 5px 0', fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-primary)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>Q: {fatwa.question}</p>
-                      <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--primary-color)', fontStyle: 'italic', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>A: {fatwa.answer}</p>
-                    </div>
-                  ))}
-                </div>
-                <Link to="/fatwa-archive" style={{ display: 'block', marginTop: '1.25rem', textAlign: 'center', fontSize: '0.85rem', color: '#8b5cf6', fontWeight: 'bold', textDecoration: 'none' }}>
-                  عرض الأرشيف الكامل ←
-                </Link>
+              <h4 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)', fontFamily: 'var(--font-heading)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontSize: '1.25rem' }}>⚖️</span> أرشيف الفتاوى
+              </h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {fatwas.map((fatwa) => (
+                  <div key={fatwa._id} style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
+                    <p style={{ margin: '0 0 5px 0', fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-primary)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>Q: {fatwa.question}</p>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--primary-color)', fontStyle: 'italic', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>A: {fatwa.answer}</p>
+                  </div>
+                ))}
+              </div>
+              <Link to="/fatwa-archive" style={{ display: 'block', marginTop: '1.25rem', textAlign: 'center', fontSize: '0.85rem', color: '#8b5cf6', fontWeight: 'bold', textDecoration: 'none' }}>
+                عرض الأرشيف الكامل ←
+              </Link>
             </div>
           )}
 
@@ -552,7 +583,7 @@ const Home = () => {
                 <span>📖</span> ختمتك الحالية
               </h4>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
-                لقد توقفت عند <strong style={{color: 'var(--text-primary)'}}>سورة {khatmah.surahName}</strong>
+                لقد توقفت عند <strong style={{ color: 'var(--text-primary)' }}>سورة {khatmah.surahName}</strong>
               </p>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
                 <span>الآية {khatmah.ayahNumber}</span>
@@ -566,15 +597,15 @@ const Home = () => {
 
           {/* Salat on Prophet Counter */}
           <div className="card" style={{ padding: '1.5rem', textAlign: 'center', marginBottom: '2rem', background: 'linear-gradient(to bottom, var(--surface-color), var(--bg-color))' }}>
-              <h4 style={{ marginBottom: '1rem', color: 'var(--primary-color)', fontFamily: 'var(--font-heading)' }}>صلِّ على النبي ﷺ</h4>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>من صلى علي واحدة صلى الله عليه بها عشراً</p>
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>{salatCount}</div>
-              <button 
-                onClick={handleSalat}
-                className="btn btn-primary" 
-                style={{ width: '100%', padding: '0.8rem', borderRadius: '1rem', fontSize: '1rem', fontWeight: 'bold' }}>
-                اللهمَّ صلِّ على محمَّد ﷺ
-              </button>
+            <h4 style={{ marginBottom: '1rem', color: 'var(--primary-color)', fontFamily: 'var(--font-heading)' }}>صلِّ على النبي ﷺ</h4>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>من صلى علي واحدة صلى الله عليه بها عشراً</p>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>{salatCount}</div>
+            <button
+              onClick={handleSalat}
+              className="btn btn-primary"
+              style={{ width: '100%', padding: '0.8rem', borderRadius: '1rem', fontSize: '1rem', fontWeight: 'bold' }}>
+              اللهمَّ صلِّ على محمَّد ﷺ
+            </button>
           </div>
 
           {/* Most Read Widget */}
@@ -583,20 +614,20 @@ const Home = () => {
           {/* Daily Hadith Widget */}
 
           <div className="card" style={{ padding: '1.5rem', marginBottom: '2rem', border: '1px solid var(--border-color)', borderRight: '5px solid var(--secondary-color)' }}>
-              <h4 style={{ marginBottom: '1rem', color: 'var(--secondary-color)', fontSize: '1.1rem' }}>🔖 حديث اليوم</h4>
-              <p style={{ fontSize: '1rem', color: 'var(--text-primary)', lineHeight: '1.8', fontStyle: 'italic', marginBottom: '0.75rem' }}>{dailyHadith.text}</p>
-              <p style={{ fontSize: '0.8rem', textAlign: 'left', color: 'var(--text-muted)' }}>— {dailyHadith.source}</p>
+            <h4 style={{ marginBottom: '1rem', color: 'var(--secondary-color)', fontSize: '1.1rem' }}>🔖 حديث اليوم</h4>
+            <p style={{ fontSize: '1rem', color: 'var(--text-primary)', lineHeight: '1.8', fontStyle: 'italic', marginBottom: '0.75rem' }}>{dailyHadith.text}</p>
+            <p style={{ fontSize: '0.8rem', textAlign: 'left', color: 'var(--text-muted)' }}>— {dailyHadith.source}</p>
           </div>
 
           <div className="card" style={{ padding: '1.5rem', marginBottom: '2rem' }}>
-              <h4 style={{ marginBottom: '1rem', fontSize: '1rem' }}>📻 إذاعة القرآن الكريم (بث مباشر)</h4>
-              <button 
-                  onClick={() => playTrack({ id: 'live-radio', title: 'إذاعة القرآن الكريم (مباشر)', url: radioUrl, author: 'منوع' })}
-                  className="btn" 
-                  style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '8px', background: (currentTrack?.url === radioUrl && isPlaying) ? 'var(--primary-dark)' : 'var(--primary-color)', color: 'white' }}
-                >
-                  {(currentTrack?.url === radioUrl && isPlaying) ? '⏸️ إيقاف البث' : '▶️ استماع للبث المباشر'}
-              </button>
+            <h4 style={{ marginBottom: '1rem', fontSize: '1rem' }}>📻 إذاعة القرآن الكريم (بث مباشر)</h4>
+            <button
+              onClick={() => playTrack({ id: 'live-radio', title: 'إذاعة القرآن الكريم (مباشر)', url: radioUrl, author: 'منوع' })}
+              className="btn"
+              style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '8px', background: (currentTrack?.url === radioUrl && isPlaying) ? 'var(--primary-dark)' : 'var(--primary-color)', color: 'white' }}
+            >
+              {(currentTrack?.url === radioUrl && isPlaying) ? '⏸️ إيقاف البث' : '▶️ استماع للبث المباشر'}
+            </button>
           </div>
 
         </aside>
@@ -605,11 +636,56 @@ const Home = () => {
       <style>{`
         .most-read-mobile { display: none !important; }
         .most-read-desktop { display: block !important; }
-        @media (max-width: 992px) {
-          .main-grid { grid-template-columns: 1fr !important; }
-          .sidebar { position: static !important; order: 1; margin-top: 3rem; }
-          .most-read-mobile { display: block !important; margin-bottom: 2rem !important; }
-          .most-read-desktop { display: none !important; }
+
+        @media (max-width: 1024px) {
+          .main-grid-responsive { grid-template-columns: 1fr !important; gap: 2rem !important; }
+          .sidebar-stack { order: 2; border-top: 1px solid var(--border-color); padding-top: 2rem; }
+          .articles-section { order: 1; }
+        }
+
+        @media (max-width: 768px) {
+          .container { padding: 1rem 0.5rem !important; overflow-x: hidden !important; }
+          
+          /* Hero Section Adjustments */
+          .hero-responsive { 
+            min-height: auto !important; 
+            padding: 2rem 1rem !important; 
+            border-radius: 1.5rem !important; 
+            width: 100% !important;
+          }
+          .hero-content { padding: 1rem 0 !important; width: 100% !important; }
+          .hero-title { font-size: 1.6rem !important; margin-bottom: 1rem !important; }
+          .hero-p { font-size: 0.88rem !important; line-height: 1.5 !important; margin-bottom: 1.5rem !important; }
+          .hero-btns { flex-direction: column !important; align-items: stretch !important; gap: 0.75rem !important; }
+          .hero-btn-main { justify-content: center !important; padding: 0.85rem !important; font-size: 0.95rem !important; width: 100% !important; }
+
+          /* Carousel Fixes */
+          .articles-carousel { 
+            gap: 0.75rem !important; 
+            padding-left: 1rem !important; 
+            padding-right: 1rem !important; 
+            margin-right: -0.5rem !important;
+            margin-left: -0.5rem !important;
+          }
+          .carousel-arrow { display: none !important; } /* Hide arrows on mobile touch */
+
+          /* Grid Fixes */
+          .sections-grid { grid-template-columns: 1fr !important; gap: 1rem !important; }
+          .section-card-full { grid-column: span 1 !important; width: 100% !important; }
+          .section-card-full > div { flex-direction: column !important; align-items: flex-start !important; gap: 1rem !important; padding: 1.5rem !important; }
+          .section-card-full h3 { font-size: 1.2rem !important; }
+          
+          .main-grid-responsive { gap: 1.5rem !important; width: 100% !important; }
+          .articles-section { width: 100% !important; }
+          .sidebar-stack { width: 100% !important; }
+
+          /* Category Header */
+          .articles-section h2 { font-size: 1.15rem !important; }
+        }
+
+        /* Helper to hide arrows on mobile */
+        @media (pointer: coarse) {
+          .carousel-arrow { display: none !important; }
         }
       `}</style>
     </div>

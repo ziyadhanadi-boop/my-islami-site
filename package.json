@@ -1,4 +1,13 @@
 {
+  "name": "my-islami-site",
+  "version": "1.0.0",
+  "description": "Islamic Platform with Node.js and React",
+  "main": "server/server.js",
+  "scripts": {
+    "build": "npm install && cd server && npm install && cd ../client && npm install && npm run build",
+    "start": "cd server && node server.js",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install"
+  },
   "dependencies": {
     "@google/generative-ai": "^0.24.1"
   }

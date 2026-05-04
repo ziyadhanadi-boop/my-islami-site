@@ -18,7 +18,12 @@ const KidsCorner = () => {
     const fetchKidsContent = async () => {
       try {
         const res = await axios.get('/api/kidContent?t=' + Date.now());
-        setItems(res.data);
+        const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+        const data = res.data.map(item => ({
+          ...item,
+          coverImage: item.coverImage && !item.coverImage.startsWith('http') ? `${API_BASE}${item.coverImage}` : item.coverImage
+        }));
+        setItems(data);
       } catch (error) {
         console.error('Error fetching kids content:', error);
       } finally {
