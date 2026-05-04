@@ -3,8 +3,8 @@ services:
     name: my-islami-site
     runtime: node
     plan: free
-    buildCommand: npm run build
-    startCommand: npm start
+    buildCommand: cd server && npm install
+    startCommand: cd server && node server.js
     envVars:
       - key: NODE_VERSION
         value: 20
