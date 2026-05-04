@@ -73,7 +73,6 @@ const Search = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
               <span style={{ fontSize: '1.3rem' }}>✨</span>
               <strong style={{ color: 'var(--primary-color)', fontSize: '1rem' }}>المساعد الإسلامي الذكي</strong>
-              <span style={{ fontSize: '0.7rem', background: 'var(--primary-color)', color: 'white', padding: '0.1rem 0.5rem', borderRadius: '1rem' }}>Gemini AI</span>
             </div>
             <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--text-muted)' }}>
               يبحث داخل مقالات وفتاوى الموقع ويقدم لك إجابة ملخصة مع مصادر
