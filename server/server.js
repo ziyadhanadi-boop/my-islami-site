@@ -22,8 +22,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Connect to MongoDB
 const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/islami_db';
 mongoose.connect(mongoURI)
-.then(() => console.log('MongoDB Connected...'))
-.catch(err => console.error('MongoDB Error:', err));
+  .then(() => console.log('MongoDB Connected...'))
+  .catch(err => console.error('MongoDB Error:', err));
 
 // Fallback for JWT secret if .env is missing
 if (!process.env.JWT_SECRET) {
@@ -58,18 +58,18 @@ app.use('/api/daily-quotes', require('./routes/dailyQuotes'));
 // Bulk AI Seeding Secret Route (One-time usage)
 app.get('/api/admin/bulk-seed-action', async (req, res) => {
   if (req.query.secret !== 'ziyad123') return res.status(403).send('Forbidden');
-  
+
   const { GoogleGenerativeAI } = require('@google/generative-ai');
   const Article = require('./models/Article');
   const apiKey = process.env.GEMINI_API_KEY;
   const categories = [
-    "فقه الصلاة", "فقه الزكاة", "فقه الصيام", "المعاملات المالية", 
-    "علوم القرآن", "الحديث النبوي", "الهدي النبوي", "العقيدة والتوحيد", 
+    "فقه الصلاة", "فقه الزكاة", "فقه الصيام", "المعاملات المالية",
+    "علوم القرآن", "الحديث النبوي", "الهدي النبوي", "العقيدة والتوحيد",
     "نماء وتزكية", "فضل الدعاء", "السيرة والتاريخ", "الأسرة والمجتمع", "فتاوى"
   ];
 
   res.write('Starting bulk seeding... this will take a while. Please wait.\n\n');
-  
+
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
@@ -135,7 +135,7 @@ const renderArticleSSR = async (req, res, next) => {
 
     // 1. Stale-While-Revalidate Strategy (Ultra Fast)
     const cachedHTML = await cache.get(`ssr_${slug}`);
-    
+
     // Set modern CDN friendly headers (Cloudflare support)
     // public: cache on user and CDN
     // s-maxage: how long CDN stores it (1 year)
@@ -159,7 +159,7 @@ const renderArticleSSR = async (req, res, next) => {
         const title = `${art.title} | منصة إسلامي`;
         const desc = art.content.slice(0, 160).replace(/<[^>]*>?/gm, '') + '...';
         const image = art.imageUrl ? `${req.protocol}://${req.get('host')}${art.imageUrl}` : '';
-        
+
         const articleHtml = `
           <article style="max-width:800px; margin:0 auto; padding:2rem;">
             <h1>${art.title}</h1>
@@ -175,7 +175,7 @@ const renderArticleSSR = async (req, res, next) => {
         const imageAbsolute = art.imageUrl
           ? (art.imageUrl.startsWith('http') ? art.imageUrl : `${siteUrl}${art.imageUrl}`)
           : `${siteUrl}/og-default.jpg`;
-        
+
         const injection = `
           <!-- Primary SEO -->
           <meta name="description" content="${desc}">
@@ -238,7 +238,7 @@ const renderArticleSSR = async (req, res, next) => {
 
         // 3. Save to Global Redis Cache
         await cache.set(`ssr_${slug}`, html, 3600); // 1 hour expiry
-        
+
         res.set('X-Cache', 'MISS');
         return res.send(html);
       }
@@ -259,7 +259,7 @@ app.get('/article/:slug', renderArticleSSR);
 app.get('*', (req, res, next) => {
   // If it's an API route that reached here, don't serve index.html
   if (req.path.startsWith('/api')) return next();
-  
+
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
@@ -271,47 +271,47 @@ const PORT = process.env.PORT || 5000;
 
 // Pre-render High-Traffic articles (Cache Warm-up Engine)
 const warmUpCache = async () => {
-    try {
-        console.log('🔥 Server Warming-up: Pre-rendering popular articles...');
-        const Article = require('./models/Article');
-        const popularArticles = await Article.find({ isHidden: { $ne: true } })
-            .sort({ views: -1 })
-            .limit(10)
-            .select('slug')
-            .lean();
-        
-        for (const art of popularArticles) {
-            const mockReq = { 
-                path: `/article/${art.slug}`, 
-                protocol: 'http', 
-                get: (header) => header === 'host' ? 'localhost' : '' 
-            };
-            const mockRes = { 
-                set: () => {}, 
-                send: async (html) => { await cache.set(`ssr_${art.slug}`, html, 3600); } 
-            };
-            await renderArticleSSR(mockReq, mockRes, () => {});
-        }
-        console.log(`✅ Success: Cache warmed for ${popularArticles.length} articles.`);
-    } catch (err) { console.warn('⚠️ Warm-up failed:', err.message); }
+  try {
+    console.log('🔥 Server Warming-up: Pre-rendering popular articles...');
+    const Article = require('./models/Article');
+    const popularArticles = await Article.find({ isHidden: { $ne: true } })
+      .sort({ views: -1 })
+      .limit(10)
+      .select('slug')
+      .lean();
+
+    for (const art of popularArticles) {
+      const mockReq = {
+        path: `/article/${art.slug}`,
+        protocol: 'http',
+        get: (header) => header === 'host' ? 'localhost' : ''
+      };
+      const mockRes = {
+        set: () => { },
+        send: async (html) => { await cache.set(`ssr_${art.slug}`, html, 3600); }
+      };
+      await renderArticleSSR(mockReq, mockRes, () => { });
+    }
+    console.log(`✅ Success: Cache warmed for ${popularArticles.length} articles.`);
+  } catch (err) { console.warn('⚠️ Warm-up failed:', err.message); }
 };
 
 app.listen(PORT, async () => {
-    console.log(`Server started on port ${PORT}`);
-    
-    // Auto-fix Slugs on startup
-    try {
-        const Article = require('./models/Article');
-        const articles = await Article.find({ $or: [{ slug: { $exists: false } }, { slug: '' }, { slug: null }] });
-        if (articles.length > 0) {
-            console.log(`🔧 Fixing slugs for ${articles.length} articles...`);
-            for (const art of articles) {
-                // The pre-save hook we just added will handle the generation
-                await art.save();
-            }
-            console.log('✅ Slugs fixed!');
-        }
-    } catch (e) { console.error('Slug fix failed:', e); }
+  console.log(`Server started on port ${PORT}`);
 
-    await warmUpCache();
+  // Auto-fix Slugs on startup
+  try {
+    const Article = require('./models/Article');
+    const articles = await Article.find({ $or: [{ slug: { $exists: false } }, { slug: '' }, { slug: null }] });
+    if (articles.length > 0) {
+      console.log(`🔧 Fixing slugs for ${articles.length} articles...`);
+      for (const art of articles) {
+        // The pre-save hook we just added will handle the generation
+        await art.save();
+      }
+      console.log('✅ Slugs fixed!');
+    }
+  } catch (e) { console.error('Slug fix failed:', e); }
+
+  await warmUpCache();
 });
