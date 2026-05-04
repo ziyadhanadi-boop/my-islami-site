@@ -120,8 +120,9 @@ const ChatWidget = () => {
     try {
       const res = await axios.post('/api/ai/chat', { prompt: userText });
       setMessages(prev => [...prev, { role: 'assistant', text: res.data.reply }]);
-    } catch {
-      setMessages(prev => [...prev, { role: 'assistant', text: 'عذراً، حدث خطأ في الاتصال. حاول مرة أخرى.' }]);
+    } catch (err) {
+      const errMsg = err.response?.data?.msg || err.message || 'حدث خطأ في الاتصال';
+      setMessages(prev => [...prev, { role: 'assistant', text: `عذراً: ${errMsg}` }]);
     } finally {
       setLoading(false);
     }
