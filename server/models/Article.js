@@ -20,4 +20,14 @@ const ArticleSchema = new mongoose.Schema({
 
 ArticleSchema.index({ title: 'text', content: 'text', tags: 'text' });
 
+ArticleSchema.pre('save', function(next) {
+  if (!this.slug || this.isModified('title')) {
+    this.slug = this.title
+      .toLowerCase()
+      .replace(/ /g, '-')
+      .replace(/[^\u0621-\u064A0-9a-z-]/g, '');
+  }
+  next();
+});
+
 module.exports = mongoose.model('Article', ArticleSchema);

@@ -249,5 +249,20 @@ const warmUpCache = async () => {
 
 app.listen(PORT, async () => {
     console.log(`Server started on port ${PORT}`);
+    
+    // Auto-fix Slugs on startup
+    try {
+        const Article = require('./models/Article');
+        const articles = await Article.find({ $or: [{ slug: { $exists: false } }, { slug: '' }, { slug: null }] });
+        if (articles.length > 0) {
+            console.log(`🔧 Fixing slugs for ${articles.length} articles...`);
+            for (const art of articles) {
+                // The pre-save hook we just added will handle the generation
+                await art.save();
+            }
+            console.log('✅ Slugs fixed!');
+        }
+    } catch (e) { console.error('Slug fix failed:', e); }
+
     await warmUpCache();
 });
