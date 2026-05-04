@@ -55,6 +55,51 @@ app.use('/api/podcasts', require('./routes/podcasts'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/daily-quotes', require('./routes/dailyQuotes'));
 
+// Bulk AI Seeding Secret Route (One-time usage)
+app.get('/api/admin/bulk-seed-action', async (req, res) => {
+  if (req.query.secret !== 'ziyad123') return res.status(403).send('Forbidden');
+  
+  const { GoogleGenerativeAI } = require('@google/generative-ai');
+  const Article = require('./models/Article');
+  const apiKey = process.env.GEMINI_API_KEY;
+  const categories = [
+    "فقه الصلاة", "فقه الزكاة", "فقه الصيام", "المعاملات المالية", 
+    "علوم القرآن", "الحديث النبوي", "الهدي النبوي", "العقيدة والتوحيد", 
+    "نماء وتزكية", "فضل الدعاء", "السيرة والتاريخ", "الأسرة والمجتمع", "فتاوى"
+  ];
+
+  res.write('Starting bulk seeding... this will take a while. Please wait.\n\n');
+  
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+
+  for (const category of categories) {
+    try {
+      const prompt = `اكتب 2 مقالاً إسلامياً مختلفاً ومفصلاً في قسم "${category}".
+      يجب أن يكون الرد بتنسيق JSON حصراً كأنه مصفوفة من المقالات:
+      [
+        {
+          "title": "عنوان المقال",
+          "content": "محتوى HTML احترافي (عناوين h3، فقرات p، قوائم)",
+          "summary": "ملخص قصير جداً"
+        }
+      ]`;
+      const result = await model.generateContent(prompt);
+      const text = await result.response.text();
+      const startIdx = text.indexOf('['), endIdx = text.lastIndexOf(']');
+      const articles = JSON.parse(text.substring(startIdx, endIdx + 1));
+
+      for (const artData of articles) {
+        await Article.create({ ...artData, category, author: 'المساعد الذكي', status: 'published' });
+      }
+      res.write(`✅ Processed: ${category}\n`);
+    } catch (err) {
+      res.write(`❌ Error in ${category}: ${err.message}\n`);
+    }
+  }
+  res.end('\nBulk seeding completed!');
+});
+
 // Static Paths
 const distPath = path.join(__dirname, '../client/dist');
 const indexPath = path.join(distPath, 'index.html');
