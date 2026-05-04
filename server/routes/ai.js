@@ -48,6 +48,7 @@ router.post('/generate-article', auth, async (req, res) => {
         else throw new Error('Invalid JSON from AI');
     }
   } catch (error) {
+    console.error('Gemini Article Error:', error);
     res.status(500).json({ msg: `خطأ في توليد المقال: ${error.message}` });
   }
 });
@@ -100,6 +101,7 @@ router.post('/chat', async (req, res) => {
     const text = (await result.response).text();
     res.json({ reply: text });
   } catch (error) {
+    console.error('Gemini AI Error:', error);
     res.status(500).json({ msg: 'فشل في الحصول على رد من الذكاء الاصطناعي' });
   }
 });
@@ -139,6 +141,7 @@ router.post('/search-quran', async (req, res) => {
         else throw new Error('Invalid JSON');
     }
   } catch (error) {
+    console.error('Gemini Quran Search Error:', error);
     res.status(500).json({ msg: 'فشل في البحث القرآني' });
   }
 });
