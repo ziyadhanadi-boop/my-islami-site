@@ -93,8 +93,12 @@ app.get('/api/admin/bulk-seed-action', async (req, res) => {
         await Article.create({ ...artData, category, author: 'المساعد الذكي', status: 'published' });
       }
       res.write(`✅ Processed: ${category}\n`);
+      // Wait 3 seconds between categories to avoid 503/429 errors
+      await new Promise(resolve => setTimeout(resolve, 3000));
     } catch (err) {
       res.write(`❌ Error in ${category}: ${err.message}\n`);
+      // Wait longer on error before next try
+      await new Promise(resolve => setTimeout(resolve, 5000));
     }
   }
   res.end('\nBulk seeding completed!');
