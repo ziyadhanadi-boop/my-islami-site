@@ -36,8 +36,7 @@ npm run dev
 
 ```json
 {
-  "email": "ziyad@islami.com"",
-  "password": "Ziyad@is1""
+  
 }
 ```
 بعد نجاح الإنشاء، يمكنك تسجيل الدخول إلى لوحة التحكم من خلال الرابط:
