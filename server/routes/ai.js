@@ -20,7 +20,7 @@ router.post('/generate-article', auth, async (req, res) => {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }, { apiVersion: 'v1' });
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest", safetySettings });
 
     const prompt = `اكتب مقالاً إسلامياً احترافياً ومفصلاً حول موضوع "${keyword}" باللغة العربية.
     يجب أن يكون الرد بتنسيق JSON حصراً ويحتوي على المفاتيح التالية:
@@ -59,7 +59,7 @@ router.post('/suggest-topic', auth, async (req, res) => {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }, { apiVersion: 'v1' });
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest", safetySettings });
     const prompt = `أنت خبير في المحتوى الإسلامي، اقترح 5 عناوين لمقالات إسلامية جذابة ومعاصرة تهم المسلم اليوم (عقيدة، فقه، تزكية، سيرة، أخلاق).
     يجب أن يكون الرد بتنسيق JSON حصراً ويحتوي على المفتاح suggestions وهو عبارة عن مصفوفة من 5 عناصر:
     {
@@ -87,7 +87,7 @@ router.post('/chat', async (req, res) => {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }, { apiVersion: 'v1' });
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest", safetySettings });
 
     const chatInput = `أنت خبير ومساعد إسلامي متمكن. أجب على الأسئلة الدينية والشرعية بدقة وأمانة علمية بناءً على القرآن والسنة.
     - قدم إجابات وافية ومفصلة.
@@ -114,7 +114,7 @@ router.post('/search-quran', async (req, res) => {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }, { apiVersion: 'v1' });
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest", safetySettings });
 
     const prompt = `أنت خبير في علوم القرآن الكريم والبحث المتخصص. 
     الهدف: الرد على استفسار المستخدم بآيات من القرآن الكريم ذات صلة بموضوع البحث، مع ذكر التفسير الميسر.
@@ -170,7 +170,7 @@ router.post('/smart-search', async (req, res) => {
     ).join('\n\n---\n\n');
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }, { apiVersion: 'v1' });
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest", safetySettings });
 
     const prompt = `أنت مساعد بحث إسلامي ذكي لموقع "إسلامي". 
     لديك قاعدة المعرفة التالية من مقالات وفتاوى الموقع:
@@ -212,7 +212,7 @@ router.post('/dua-generator', async (req, res) => {
   if (!apiKey) return res.status(500).json({ msg: 'API Key not configured' });
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }, { apiVersion: 'v1' });
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest", safetySettings });
     const prompt = `أنت عالم إسلامي متخصص في الأدعية المأثورة. 
     المستخدم يواجه هذا الموقف: "${situation}"
     مهمتك: اقترح 3 أدعية مأثورة من القرآن الكريم أو السنة النبوية تناسب هذا الموقف.
@@ -243,7 +243,7 @@ router.post('/halal-check', async (req, res) => {
   if (!apiKey) return res.status(500).json({ msg: 'API Key not configured' });
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }, { apiVersion: 'v1' });
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest", safetySettings });
     const prompt = `أنت خبير في الأحكام الشرعية والفقهية. قدم الحكم الشرعي للسؤال التالي بدقة بناءً على الأدلة المعتبرة.
     السؤال: "${question}"
     يجب أن يكون ردك بتنسيق JSON فقط:
