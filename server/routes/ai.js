@@ -39,13 +39,13 @@ router.post('/generate-article', auth, async (req, res) => {
 
     const result = await model.generateContent(prompt);
     const text = (await result.response).text();
-    
+
     try {
-        res.json(JSON.parse(text));
+      res.json(JSON.parse(text));
     } catch {
-        const startIdx = text.indexOf('{'), endIdx = text.lastIndexOf('}');
-        if (startIdx !== -1 && endIdx !== -1) res.json(JSON.parse(text.substring(startIdx, endIdx + 1)));
-        else throw new Error('Invalid JSON from AI');
+      const startIdx = text.indexOf('{'), endIdx = text.lastIndexOf('}');
+      if (startIdx !== -1 && endIdx !== -1) res.json(JSON.parse(text.substring(startIdx, endIdx + 1)));
+      else throw new Error('Invalid JSON from AI');
     }
   } catch (error) {
     console.error('Gemini Article Error:', error);
@@ -70,9 +70,9 @@ router.post('/suggest-topic', auth, async (req, res) => {
     const result = await model.generateContent(prompt);
     const text = (await result.response).text();
     try { res.json(JSON.parse(text)); } catch {
-        const startIdx = text.indexOf('{'), endIdx = text.lastIndexOf('}');
-        if (startIdx !== -1 && endIdx !== -1) res.json(JSON.parse(text.substring(startIdx, endIdx + 1)));
-        else throw new Error('Invalid JSON');
+      const startIdx = text.indexOf('{'), endIdx = text.lastIndexOf('}');
+      if (startIdx !== -1 && endIdx !== -1) res.json(JSON.parse(text.substring(startIdx, endIdx + 1)));
+      else throw new Error('Invalid JSON');
     }
   } catch (error) {
     res.status(500).json({ msg: 'فشل في الحصول على اقتراحات', error: error.message });
@@ -136,9 +136,9 @@ router.post('/search-quran', async (req, res) => {
     const result = await model.generateContent(prompt);
     const text = (await result.response).text();
     try { res.json(JSON.parse(text)); } catch {
-        const startIdx = text.indexOf('{'), endIdx = text.lastIndexOf('}');
-        if (startIdx !== -1 && endIdx !== -1) res.json(JSON.parse(text.substring(startIdx, endIdx + 1)));
-        else throw new Error('Invalid JSON');
+      const startIdx = text.indexOf('{'), endIdx = text.lastIndexOf('}');
+      if (startIdx !== -1 && endIdx !== -1) res.json(JSON.parse(text.substring(startIdx, endIdx + 1)));
+      else throw new Error('Invalid JSON');
     }
   } catch (error) {
     console.error('Gemini Quran Search Error:', error);
@@ -161,7 +161,7 @@ router.post('/smart-search', async (req, res) => {
       FatwaArchive.find({ isHidden: { $ne: true } }).select('question answer category').lean()
     ]);
 
-    const articlesContext = articles.slice(0, 15).map(a => 
+    const articlesContext = articles.slice(0, 15).map(a =>
       `[مقالة: "${a.title}" | القسم: ${a.category} | الرابط: /article/${a.slug}]\n${a.content.replace(/<[^>]*>/g, '').slice(0, 400)}`
     ).join('\n\n---\n\n');
 
@@ -196,9 +196,9 @@ router.post('/smart-search', async (req, res) => {
     const result = await model.generateContent(prompt);
     const text = (await result.response).text();
     try { res.json(JSON.parse(text)); } catch {
-        const s = text.indexOf('{'), e = text.lastIndexOf('}');
-        if (s !== -1 && e !== -1) res.json(JSON.parse(text.substring(s, e + 1)));
-        else res.json({ answer: text, sources: [], confidence: 'متوسط' });
+      const s = text.indexOf('{'), e = text.lastIndexOf('}');
+      if (s !== -1 && e !== -1) res.json(JSON.parse(text.substring(s, e + 1)));
+      else res.json({ answer: text, sources: [], confidence: 'متوسط' });
     }
   } catch (err) {
     res.status(500).json({ msg: 'فشل البحث الذكي' });
@@ -232,7 +232,7 @@ router.post('/dua-generator', async (req, res) => {
     const result = await model.generateContent(prompt);
     const text = (await result.response).text();
     try { res.json(JSON.parse(text)); }
-    catch { const s = text.indexOf('{'), e = text.lastIndexOf('}'); s !== -1 && endIdx !== -1 ? res.json(JSON.parse(text.substring(s, e+1))) : res.status(500).json({ msg: 'خطأ' }); }
+    catch { const s = text.indexOf('{'), e = text.lastIndexOf('}'); s !== -1 && endIdx !== -1 ? res.json(JSON.parse(text.substring(s, e + 1))) : res.status(500).json({ msg: 'خطأ' }); }
   } catch (err) { res.status(500).json({ msg: 'فشل في توليد الدعاء' }); }
 });
 
@@ -259,7 +259,7 @@ router.post('/halal-check', async (req, res) => {
     const result = await model.generateContent(prompt);
     const text = (await result.response).text();
     try { res.json(JSON.parse(text)); }
-    catch { const s = text.indexOf('{'), e = text.lastIndexOf('}'); s !== -1 && e !== -1 ? res.json(JSON.parse(text.substring(s, e+1))) : res.status(500).json({ msg: 'خطأ' }); }
+    catch { const s = text.indexOf('{'), e = text.lastIndexOf('}'); s !== -1 && e !== -1 ? res.json(JSON.parse(text.substring(s, e + 1))) : res.status(500).json({ msg: 'خطأ' }); }
   } catch (err) { res.status(500).json({ msg: 'فشل في الاستفسار' }); }
 });
 
